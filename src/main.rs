@@ -1,8 +1,8 @@
 use core::panic;
 use std::env;
-use std::ffi::FromBytesWithNulError;
 use std::fs::File;
 use std::io::prelude::*;
+use std::time::Instant;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -31,24 +31,23 @@ OPTIONS:\n
         Err(t) => {panic!("Error parseing SEED from call arguments, did you use a non whole number? SEED:{:?} error:{:?}",&args[3],t)}
     };
 
+    let speed:Instant = Instant::now();
     // If one of the arguments is decrypt then decrypt the file, else encrypt it.
     if args.contains(&"-d".to_owned()) || args.contains(&"--decrypt".to_owned()) {
         // Do everthing in reverse to decrypt it.
         for byte in bytes.iter_mut() {
             *byte = byte.reverse_bits();
             *byte = byte.rotate_left(seed_parsed as u32);
-            *byte = convert_usize_u8_wrap((*byte as usize).wrapping_sub(seed_parsed));
         }
     } else {
         for byte in bytes.iter_mut() {
-            *byte = convert_usize_u8_wrap((*byte as usize).wrapping_add(seed_parsed));
             *byte = byte.rotate_right(seed_parsed as u32);
             *byte = byte.reverse_bits();
         }
     }
 
     match write_file(&args[2], bytes.as_slice()) {
-        Ok(()) => {},
+        Ok(()) => {println!("Finished in {:?}",speed.elapsed());},
         Err(error) => println!("Error writing to file, error:{:?}",error)
     };
 }
@@ -61,8 +60,7 @@ fn write_file(path:&str, data:&[u8]) -> std::io::Result<()> {
 }
 
 /// Reads the file at "path" and returns the entire file as a single String.
-/// This may seam like a bad idea, but this program is not built to handle 1gig+ files.
-/// Instead this is to allow things such as having the DESTINATION file being the same
+/// This is to allow things such as having the DESTINATION file being the same
 /// as the SOURCE file, it also protects the file contents from modification during encodeing.
 /// And unless the file is larger than the free memory there should be 0 problems with this.
 fn read_file(path:&str) -> std::io::Result<Vec<u8>> {
@@ -70,13 +68,4 @@ fn read_file(path:&str) -> std::io::Result<Vec<u8>> {
     let mut contents:Vec<u8> = Vec::new();
     file.read_to_end(&mut contents)?;
     Ok(contents)
-}
-
-/// Converts a usize to a u8 through wraping.
-#[inline(always)]
-fn convert_usize_u8_wrap(input:usize) -> u8 {
-    let mut output:isize = input as isize;
-    while output < u8::MIN as isize {output = (u8::MAX as isize)+output;}
-    while output > u8::MAX as isize {output = (u8::MIN as isize)+(output-(u8::MAX as isize));}
-    output as u8
 }
