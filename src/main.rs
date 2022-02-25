@@ -1,7 +1,7 @@
 use core::panic;
 use std::env;
 use std::fs::File;
-use std::io::prelude::*;
+use std::io::{Write, Read};
 use std::time::Instant;
 
 fn main() {
@@ -15,8 +15,7 @@ USAGE:\n
     ./bad_encrypter [SOURCE] [DESTINATION] [SEED] [OPTIONS]\n
 OPTIONS:\n
     -d, --decrypt    Decrypts the file using SEED instead of encrypting\n
-    -h, --help    Print help information\n
-")
+    -h, --help    Print help information\n")
     }
     
     let mut bytes:Vec<u8>;
