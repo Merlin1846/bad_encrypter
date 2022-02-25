@@ -1,5 +1,6 @@
 use core::panic;
 use std::env;
+use std::ffi::FromBytesWithNulError;
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -32,12 +33,17 @@ OPTIONS:\n
 
     // If one of the arguments is decrypt then decrypt the file, else encrypt it.
     if args.contains(&"-d".to_owned()) || args.contains(&"--decrypt".to_owned()) {
+        // Do everthing in reverse to decrypt it.
         for byte in bytes.iter_mut() {
+            *byte = byte.reverse_bits();
+            *byte = byte.rotate_left(seed_parsed as u32);
             *byte = convert_usize_u8_wrap((*byte as usize).wrapping_sub(seed_parsed));
         }
     } else {
         for byte in bytes.iter_mut() {
             *byte = convert_usize_u8_wrap((*byte as usize).wrapping_add(seed_parsed));
+            *byte = byte.rotate_right(seed_parsed as u32);
+            *byte = byte.reverse_bits();
         }
     }
 
