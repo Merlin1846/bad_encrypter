@@ -34,6 +34,8 @@ OPTIONS:\n
     // If one of the arguments is decrypt then decrypt the file, else encrypt it.
     if args.contains(&"-d".to_owned()) || args.contains(&"--decrypt".to_owned()) {
         // Do everthing in reverse to decrypt it.
+        bytes.rotate_right(seed_parsed);
+        bytes.reverse();
         for byte in bytes.iter_mut() {
             *byte = byte.reverse_bits();
             *byte = byte.rotate_left(seed_parsed as u32);
@@ -43,6 +45,8 @@ OPTIONS:\n
             *byte = byte.rotate_right(seed_parsed as u32);
             *byte = byte.reverse_bits();
         }
+        bytes.reverse();
+        bytes.rotate_left(seed_parsed);
     }
 
     match write_file(&args[2], bytes.as_slice()) {
