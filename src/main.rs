@@ -31,7 +31,7 @@ OPTIONS:\n
     };
 
     let speed:Instant = Instant::now();
-    // If one of the arguments is decrypt then decrypt the file, else encrypt it.
+    // If one of the arguments is `--decrypt` or `-d` then decrypt the file, else encrypt it.
     if args.contains(&"-d".to_owned()) || args.contains(&"--decrypt".to_owned()) {
         // Do everthing in reverse to decrypt it.
         bytes.rotate_right(seed_parsed);
@@ -55,16 +55,16 @@ OPTIONS:\n
     };
 }
 
-/// Writes to the file at "path" creating it if necessary.
+/// Writes to the file at `path` creating it if necessary.
 fn write_file(path:&str, data:&[u8]) -> std::io::Result<()> {
     let mut file = File::create(path)?;
     file.write_all(data)?;
     Ok(())
 }
 
-/// Reads the file at "path" and returns the entire file as a single String.
+/// Reads the file at `path` and returns the entire file as a single String.
 /// This is to allow things such as having the DESTINATION file being the same
-/// as the SOURCE file, it also protects the file contents from modification during encodeing.
+/// as the `SOURCE` file, it also protects the file contents from modification during encodeing.
 /// And unless the file is larger than the free memory there should be 0 problems with this.
 fn read_file(path:&str) -> std::io::Result<Vec<u8>> {
     let mut file = File::open(path)?;
