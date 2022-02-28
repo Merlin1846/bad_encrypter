@@ -1,4 +1,3 @@
-use core::panic;
 use std::env;
 use std::fs::File;
 use std::io::{Write, Read};
@@ -20,14 +19,14 @@ OPTIONS:\n
     
     let mut bytes:Vec<u8>;
     match read_file(&args[1]) {
-        Ok(t) => {bytes = t;},
-        Err(t) => {panic!("Error read from file at path:{:?} error:{:?}",&args[1],t)}
+        Ok(data) => {bytes = data;},
+        Err(err) => {panic!("Error read from file at path:{:?} error:{:?}",&args[1],err)}
     };
 
     let seed_parsed:usize;
     match args[3].parse::<usize>() {
-        Ok(t) => {seed_parsed = t;},
-        Err(t) => {panic!("Error parseing SEED from call arguments, did you use a non whole number? SEED:{:?} error:{:?}",&args[3],t)}
+        Ok(seed) => {seed_parsed = seed;},
+        Err(err) => {panic!("Error parseing SEED from call arguments, did you use a non whole number? SEED:{:?} error:{:?}",&args[3],err)}
     };
 
     let speed:Instant = Instant::now();
@@ -50,7 +49,7 @@ OPTIONS:\n
     }
 
     match write_file(&args[2], bytes.as_slice()) {
-        Ok(()) => {println!("Finished in {:?}",speed.elapsed());},
+        Ok(_) => {println!("Finished in {:?}",speed.elapsed());},
         Err(error) => println!("Error writing to file, error:{:?}",error)
     };
 }
